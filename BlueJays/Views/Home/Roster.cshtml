@@ -1,0 +1,41 @@
+﻿@model IEnumerable<IEnumerable<BlueJays.Models.Roster>>
+
+@{
+    ViewBag.Title = "Toronto Blue Jays Web Applications - Team Stats";
+}
+
+@section scripts {
+    @Scripts.Render("~/Scripts/stats.js")
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="teamName">@ViewBag.name</h1>
+    </div>
+</div>
+
+<div class="row">
+
+
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4">
+
+            <h3>@item.FirstOrDefault().position.name</h3>
+
+            <ul>
+
+                @foreach (var player in item)
+                {
+                    <li>@Html.ActionLink(player.person.fullName, "Player", "Home", new { id = player.person.id }, null)</li>
+                }
+
+            </ul>
+
+        </div>
+    }
+
+</div>
+
+
+

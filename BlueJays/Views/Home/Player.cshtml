@@ -1,0 +1,283 @@
+﻿@model IEnumerable<BlueJays.Models.Player>
+
+
+@{
+    ViewBag.Title = "Toronto Blue Jays Web Applications - Player Stats";
+}
+
+@section scripts {
+    @Scripts.Render("~/Scripts/stats.js")
+}
+
+@{
+    var player = Model.FirstOrDefault();
+    var headShotUrl = "https://securea.mlb.com/mlb/images/players/head_shot/" + player.id + ".jpg";
+    var actionShotUrl = "https://securea.mlb.com/images/players/action_shots/" + player.id + ".jpg";
+}
+
+<div class="jumbotron" style="background: url(@actionShotUrl); background-position: top center; background-size: cover;">
+    <div class="container">
+        <img src="@headShotUrl" alt="@player.fullName" class="headshot" />
+        <div class="player-info">
+            <h1>@player.fullName #@player.primaryNumber</h1>
+            <h2>@player.primaryPosition.abbreviation</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        @if (!player.nickName.IsEmpty())
+        {
+            <div class="form-group">
+                <label for="nickname">Nickname:</label>
+                @Html.DisplayFor(modelItem => player.nickName)
+            </div>
+        }
+        <div class="form-group">
+            <label for="born">Born:</label>
+            @Html.DisplayFor(modelItem => player.birthDate)
+        </div>
+        <div class="form-group">
+            <label for="draft">Draft Year:</label>
+            @Html.DisplayFor(modelItem => player.draftYear)
+        </div>
+        <div class="form-group">
+            <label for="debut">Debut:</label>
+            @Html.DisplayFor(modelItem => player.mlbDebutDate)
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group">
+            <label for="age">Age:</label>
+            @Html.DisplayFor(modelItem => player.currentAge)
+        </div>
+        <div class="form-group">
+            <label for="bats">Bats:</label>
+            @Html.DisplayFor(modelItem => player.batSide.description)
+        </div>
+        <div class="form-group">
+            <label for="bats">Throws:</label>
+            @Html.DisplayFor(modelItem => player.pitchHand.description)
+        </div>
+        <div class="form-group">
+            <label for="height">Height:</label>
+            @Html.DisplayFor(modelItem => player.height)
+        </div>
+        <div class="form-group">
+            <label for="weight">Weight:</label>
+            @Html.DisplayFor(modelItem => player.weight)
+        </div>
+    </div>
+</div>
+
+@if (player.primaryPosition.abbreviation == "P")
+{
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table-striped">
+                <thead>
+                    <tr>
+                        <th>Season</th>
+                        <th>Team</th>
+                        <th>LG</th>
+                        <th>W</th>
+                        <th>L</th>
+                        <th>ERA</th>
+                        <th>G</th>
+                        <th>GS</th>
+                        <th>CG</th>
+                        <th>SHO</th>
+                        <th>HLD</th>
+                        <th>SV</th>
+                        <th>SVO</th>
+                        <th>IP</th>
+                        <th>H</th>
+                        <th>R</th>
+                        <th>ER</th>
+                        <th>HR</th>
+                        <th>NP</th>
+                        <th>HB</th>
+                        <th>BB</th>
+                        <th>IBB</th>
+                        <th>SO</th>
+                        <th>AVE</th>
+                        <th>WHIP</th>
+                        <th>GO/AO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in player.stats)
+                    {
+                        if (item.group.displayName == "pitching")
+                        {
+                            foreach (var season in item.splits)
+                            {
+                                <tr>
+                                    <td>@season.season</td>
+                                    <td>@season.team.name</td>
+                                    <td>@season.league.name</td>
+                                    <td>@season.stat.wins</td>
+                                    <td>@season.stat.losses</td>
+                                    <td>@season.stat.era</td>
+                                    <td>@season.stat.gamesPlayed</td>
+                                    <td>@season.stat.gamesStarted</td>
+                                    <td>@season.stat.completeGames</td>
+                                    <td>@season.stat.shutouts</td>
+                                    <td>@season.stat.holds</td>
+                                    <td>@season.stat.saves</td>
+                                    <td>@season.stat.saveOpportunities</td>
+                                    <td>@season.stat.inningsPitched</td>
+                                    <td>@season.stat.hits</td>
+                                    <td>@season.stat.runs</td>
+                                    <td>@season.stat.earnedRuns</td>
+                                    <td>@season.stat.homeRuns</td>
+                                    <td>@season.stat.numberOfPitches</td>
+                                    <td>@season.stat.hitBatsmen</td>
+                                    <td>@season.stat.baseOnBalls</td>
+                                    <td>@season.stat.intentionalWalks</td>
+                                    <td>@season.stat.strikeOuts</td>
+                                    <td>@season.stat.avg</td>
+                                    <td>@season.stat.whip</td>
+                                    <td>@season.stat.groundOutsToAirouts</td>
+                                </tr>
+                            }
+
+
+                            var totalInningsPitched = item.splits.Sum(m => Convert.ToDecimal(m.stat.inningsPitched));
+                            var splitDecimal = totalInningsPitched.ToString().Split('.');
+                            var innings = Convert.ToInt32(splitDecimal[0]);
+                            var outs = Convert.ToInt32(splitDecimal[1]);
+                            var outsForInnings = Convert.ToInt32(outs / 3);
+                            var remainingOuts = outs % 3;
+                            var inningsPitched = (outsForInnings + innings) + "." + remainingOuts;
+
+                            <tr>
+                                <td>MLB Career</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>@item.splits.Sum(m => m.stat.wins)</td>
+                                <td>@item.splits.Sum(m => m.stat.losses)</td>
+                                <td>@Math.Round(Decimal.Divide(9 * item.splits.Sum(m => m.stat.earnedRuns), Convert.ToDecimal(inningsPitched)), 2)</td>
+                                <td>@item.splits.Sum(m => m.stat.gamesPlayed)</td>
+                                <td>@item.splits.Sum(m => m.stat.gamesStarted)</td>
+                                <td>@item.splits.Sum(m => m.stat.completeGames)</td>
+                                <td>@item.splits.Sum(m => m.stat.shutouts)</td>
+                                <td>@item.splits.Sum(m => m.stat.holds)</td>
+                                <td>@item.splits.Sum(m => m.stat.saves)</td>
+                                <td>@item.splits.Sum(m => m.stat.saveOpportunities)</td>
+                                <td>@inningsPitched</td>
+                                <td>@item.splits.Sum(m => m.stat.hits)</td>
+                                <td>@item.splits.Sum(m => m.stat.runs)</td>
+                                <td>@item.splits.Sum(m => m.stat.earnedRuns)</td>
+                                <td>@item.splits.Sum(m => m.stat.homeRuns)</td>
+                                <td>@item.splits.Sum(m => m.stat.numberOfPitches)</td>
+                                <td>@item.splits.Sum(m => m.stat.hitBatsmen)</td>
+                                <td>@item.splits.Sum(m => m.stat.baseOnBalls)</td>
+                                <td>@item.splits.Sum(m => m.stat.intentionalWalks)</td>
+                                <td>@item.splits.Sum(m => m.stat.strikeOuts)</td>
+                                <td>@Math.Round(Decimal.Divide(item.splits.Sum(m => m.stat.hits), item.splits.Sum(m => m.stat.atBats)), 3)</td>
+                                <td>@Math.Round(Decimal.Divide(item.splits.Sum(m => m.stat.baseOnBalls) + item.splits.Sum(m => m.stat.hits), Convert.ToDecimal(inningsPitched)), 2)</td>
+                                <td>@Math.Round(Decimal.Divide(@item.splits.Sum(m => m.stat.groundOuts), @item.splits.Sum(m => m.stat.airOuts)), 2)</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table-striped">
+                    <thead>
+                        <tr>
+                            <th>Season</th>
+                            <th>Team</th>
+                            <th>LG</th>
+                            <th>G</th>
+                            <th>AB</th>
+                            <th>R</th>
+                            <th>H</th>
+                            <th>TB</th>
+                            <th>2B</th>
+                            <th>3B</th>
+                            <th>HR</th>
+                            <th>RBI</th>
+                            <th>BB</th>
+                            <th>IBB</th>
+                            <th>SO</th>
+                            <th>SB</th>
+                            <th>CS</th>
+                            <th>AVE</th>
+                            <th>OBP</th>
+                            <th>SLG</th>
+                            <th>OPS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in player.stats)
+                        {
+                            if (item.group.displayName == "hitting")
+                            {
+                                foreach (var season in item.splits)
+                                {
+                                    <tr>
+                                        <td>@season.season</td>
+                                        <td>@season.team.name</td>
+                                        <td>@season.league.name</td>
+                                        <td>@season.stat.gamesPlayed</td>
+                                        <td>@season.stat.atBats</td>
+                                        <td>@season.stat.runs</td>
+                                        <td>@season.stat.hits</td>
+                                        <td>@season.stat.totalBases</td>
+                                        <td>@season.stat.doubles</td>
+                                        <td>@season.stat.triples</td>
+                                        <td>@season.stat.homeRuns</td>
+                                        <td>@season.stat.rbi</td>
+                                        <td>@season.stat.baseOnBalls</td>
+                                        <td>@season.stat.intentionalWalks</td>
+                                        <td>@season.stat.strikeOuts</td>
+                                        <td>@season.stat.stolenBases</td>
+                                        <td>@season.stat.caughtStealing</td>
+                                        <td>@season.stat.avg</td>
+                                        <td>@season.stat.obp</td>
+                                        <td>@season.stat.slg</td>
+                                        <td>@season.stat.ops</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td>MLB Career</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>@item.splits.Sum(m => m.stat.gamesPlayed)</td>
+                                    <td>@item.splits.Sum(m => m.stat.atBats)</td>
+                                    <td>@item.splits.Sum(m => m.stat.runs)</td>
+                                    <td>@item.splits.Sum(m => m.stat.hits)</td>
+                                    <td>@item.splits.Sum(m => m.stat.totalBases)</td>
+                                    <td>@item.splits.Sum(m => m.stat.doubles)</td>
+                                    <td>@item.splits.Sum(m => m.stat.triples)</td>
+                                    <td>@item.splits.Sum(m => m.stat.homeRuns)</td>
+                                    <td>@item.splits.Sum(m => m.stat.rbi)</td>
+                                    <td>@item.splits.Sum(m => m.stat.baseOnBalls)</td>
+                                    <td>@item.splits.Sum(m => m.stat.intentionalWalks)</td>
+                                    <td>@item.splits.Sum(m => m.stat.strikeOuts)</td>
+                                    <td>@item.splits.Sum(m => m.stat.stolenBases)</td>
+                                    <td>@item.splits.Sum(m => m.stat.caughtStealing)</td>
+                                    <td>@Math.Round(Decimal.Divide(item.splits.Sum(m => m.stat.hits), item.splits.Sum(m => m.stat.atBats)), 3)</td>
+                                    <td>@Math.Round(Decimal.Divide(item.splits.Sum(m => m.stat.hits) + item.splits.Sum(m => m.stat.baseOnBalls) + item.splits.Sum(m => m.stat.hitByPitch), item.splits.Sum(m => m.stat.atBats) + item.splits.Sum(m => m.stat.baseOnBalls) + item.splits.Sum(m => m.stat.hitByPitch) + item.splits.Sum(m => m.stat.sacFlies)), 3)</td>
+                                    <td>@Math.Round(Decimal.Divide(@item.splits.Sum(m => m.stat.totalBases), @item.splits.Sum(m => m.stat.atBats)), 3)</td>
+                                    <td>@Math.Round(@Math.Round(Decimal.Divide(@item.splits.Sum(m => m.stat.totalBases), @item.splits.Sum(m => m.stat.atBats)), 4) + @Math.Round(Decimal.Divide(item.splits.Sum(m => m.stat.hits) + item.splits.Sum(m => m.stat.baseOnBalls) + item.splits.Sum(m => m.stat.hitByPitch), item.splits.Sum(m => m.stat.atBats) + item.splits.Sum(m => m.stat.baseOnBalls) + item.splits.Sum(m => m.stat.hitByPitch) + item.splits.Sum(m => m.stat.sacFlies)), 4), 3)</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
