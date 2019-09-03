@@ -80,6 +80,7 @@
                 <thead>
                     <tr>
                         <th>Season</th>
+
                         <th>Team</th>
                         <th>LG</th>
                         <th>W</th>
@@ -116,8 +117,22 @@
                             {
                                 <tr>
                                     <td>@season.season</td>
-                                    <td>@season.team.name</td>
-                                    <td>@season.league.name</td>
+                                    @if (season.team != null)
+                                    {
+                                        <td>@season.team.name</td>
+                                    }
+                                    else
+                                    {
+                                        <td>-</td>
+                                    }
+                                    @if (season.league != null)
+                                    {
+                                        <td>@season.league.name</td>
+                                    }
+                                    else
+                                    {
+                                        <td>-</td>
+                                    }
                                     <td>@season.stat.wins</td>
                                     <td>@season.stat.losses</td>
                                     <td>@season.stat.era</td>
@@ -228,8 +243,22 @@ else
                                 {
                                     <tr>
                                         <td>@season.season</td>
-                                        <td>@season.team.name</td>
-                                        <td>@season.league.name</td>
+                                        @if (season.team != null)
+                                        {
+                                            <td>@season.team.name</td>
+                                        }
+                                        else
+                                        {
+                                            <td>-</td>
+                                        }
+                                        @if (season.league != null)
+                                        {
+                                            <td>@season.league.name</td>
+                                        }
+                                        else
+                                        {
+                                            <td>-</td>
+                                        }
                                         <td>@season.stat.gamesPlayed</td>
                                         <td>@season.stat.atBats</td>
                                         <td>@season.stat.runs</td>
